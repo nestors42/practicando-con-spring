@@ -1,13 +1,17 @@
 package com.aluracursos.screenmatch.Principal;
 
+import com.aluracursos.screenmatch.model.DatosEpisodios;
 import com.aluracursos.screenmatch.model.DatosSerie;
 import com.aluracursos.screenmatch.model.DatosTemporadas;
+import com.aluracursos.screenmatch.model.Episodio;
 import com.aluracursos.screenmatch.service.ConsumoAPI;
 import com.aluracursos.screenmatch.service.ConvierteDatos;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class Principal {
 
@@ -36,7 +40,26 @@ public class Principal {
 //        temporadas.forEach(System.out::println);
 
 //        Mostrar solo el titulo de los episodios para las temporadas
-        temporadas.forEach(t ->t.episodios().forEach(e -> System.out.println(e.titulo())));
+//        temporadas.forEach(t ->t.episodios().forEach(e -> System.out.println(e.titulo())));
+
+//        aca vamos a convertir las informaciones a una lista del tipo datos episodio
+        List<DatosEpisodios> datosEpisodios = temporadas.stream()
+                .flatMap(t -> t.episodios().stream())
+                .collect(Collectors.toUnmodifiableList());
+
+//        vamos a crear un to 5 de peliculas
+        datosEpisodios.stream()
+                .filter(e-> !e.evaluacion().equalsIgnoreCase("N/A"))
+                .sorted(Comparator.comparing(DatosEpisodios::evaluacion).reversed())
+                .limit(5)
+                .forEach(System.out::println);
+
+        List<Episodio> episodios = temporadas.stream()
+                .flatMap(t-> t.episodios().stream()
+                        .map(d-> new Episodio(t.numero(),d)))
+                .collect(Collectors.toList());
+
+        episodios.forEach(System.out::println);
 
     }
 }
